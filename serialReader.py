@@ -3,6 +3,7 @@
 import serial,time,sys
 
 from macrobull.misc import serialChecker
+from macrobull.keyEvent import *
 #from macrobull.dynamicPlot import dynamicFigure,defaultProcFunc
 
 ESC=range(0,0x20)+range(0x80,0x100)+[0x7f]
@@ -15,7 +16,7 @@ data='H'
 
 rt = [ '\n','\r' ]
 
-print("serialReader [-c (for text mode)] baud=9600 intv=0.5 data='H'\n")
+print("serialReader [-c (for text mode)] [-se (for screen + echo mode)] [dump, dump-all] baud=9600 intv=0.5 [data='H' disabled in screen mode]\n")
 #dev=serialChecker(True,'USB')#,'AMA','ACM')
 dev=serialChecker(True, 'USB','AMA','ACM')
 ser = serial.Serial(dev, baud, timeout=intv)
@@ -44,6 +45,17 @@ for i,a in enumerate(sys.argv):
 		print("Text mode")
 		char_mode = True
 
+screen_mode = False
+screen_echo_mode = False
+for i,a in enumerate(sys.argv):
+	if '-se' == a:
+		screen_echo_mode = True
+		a = '-s'
+	if '-s' == a:
+		sys.argv.pop(i)
+		print("Screen mode(directly read input)")
+		screen_mode = True
+
 if len(sys.argv)>1:
 	baud = float(sys.argv[1])
 
@@ -53,6 +65,7 @@ if len(sys.argv)>3:  data = sys.argv[3]
 ser = serial.Serial(dev, baud, timeout=intv)
 print "dev={} baudrate={}".format(dev, ser.getBaudrate())
 
+
 def glb(s, ml):
 	if char_mode:
 		for i in range(min(len(s), BUFFLEN)):
@@ -60,7 +73,15 @@ def glb(s, ml):
 				return i+1
 	return BUFFLEN
 
+'''
+main loop
+'''
+
+if screen_mode:
+	initControl()
+
 buff=''
+db = ''
 try:
 	while 1:
 		w=ser.inWaiting()
@@ -75,7 +96,7 @@ try:
 				h = '{}.{:03}: '.format(int(t),int(t % 1 *1000))
 				print h,
 				if dumpall: f.write(h)
-				
+
 				s=buff[:bl]
 				for c in ESC:
 					s=s.replace(chr(c),'.')
@@ -87,7 +108,28 @@ try:
 				buff=buff[bl:]
 
 		else:
-			ser.write(data)
+			if screen_mode:
+				if screen_echo_mode:
+					if keyPressed():
+						input_str = ''
+						while keyPressed():
+							c = readkey()
+							ser.write(c)
+							#print(c, sep='', end='')
+							input_str += c
+						input_len = len(input_str)
+						for c in ESC:
+							input_str = input_str.replace(chr(c),'.')
+						print('\n'+'='*(20 - input_len/2) + ' '*4 +
+							input_str +
+							' '*4 + '='*(20 + input_len/2 - input_len) + '\n')
+					else:
+						while keyPressed():
+							ser.write(readkey())
+
+			else:
+				ser.write(data)
+
 			time.sleep(intv)
 
 #except (KeyboardInterrupt, SystemExit):
@@ -95,5 +137,12 @@ except BaseException,e:
 	print(e)
 
 ser.close()
-if dump: f.close()
+
+if dump:
+	f.close()
+
+if screen_mode:
+	restoreControl()
+
+
 print('Exited')
