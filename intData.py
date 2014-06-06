@@ -36,12 +36,19 @@ if len(sys.argv)>3:  data = sys.argv[3]
 ser = serial.Serial(dev, baud, timeout=intv)
 print "dev={} baudrate={}".format(dev, ser.getBaudrate())
 
+buf = ''
+
 def run(fs):
-	global ser, buff
+	global ser, buf
 	w=ser.inWaiting()
 	while w:
 		s=ser.read(1)
-		df.appendData([ord(s)],'data', procFunc=[lambda x,y:average(5,x,y), lambda x,y:average(0,x,y) ], flotLabels = ['5sec', 'overall'])
+		if s=='\n':
+			for i,n in enumerate(buf.split()):
+				df.appendData([int(n)],'Data'+repr(i), procFunc=[lambda x,y:average(5,x,y), lambda x,y:average(0,x,y) ], flotLabels = ['5sec', 'overall'])
+			buf = ''
+		else:
+			buf += s
 		w=ser.inWaiting()
 
 

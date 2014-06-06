@@ -113,19 +113,17 @@ try:
 					if keyPressed():
 						input_str = ''
 						while keyPressed():
-							c = readkey()
-							ser.write(c)
-							#print(c, sep='', end='')
-							input_str += c
+							input_str += readkey()
 						input_len = len(input_str)
+						ser.write(input_str)
 						for c in ESC:
 							input_str = input_str.replace(chr(c),'.')
 						print('\n'+'='*(20 - input_len/2) + ' '*4 +
 							input_str +
-							' '*4 + '='*(20 + input_len/2 - input_len) + '\n')
-					else:
-						while keyPressed():
-							ser.write(readkey())
+							' '*4 + '='*(20 + input_len/2 - input_len))
+				else:
+					while keyPressed():
+						ser.write(readkey())
 
 			else:
 				ser.write(data)
