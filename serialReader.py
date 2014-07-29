@@ -18,7 +18,7 @@ rt = [ '\n','\r' ]
 
 print("serialReader [-c (for text mode)] [-se (for screen + echo mode)] [dump, dump-all] baud=9600 intv=0.5 [data='H' disabled in screen mode]\n")
 #dev=serialChecker(True,'USB')#,'AMA','ACM')
-dev=serialChecker(True, 'USB','AMA','ACM')
+dev=serialChecker(True)
 ser = serial.Serial(dev, baud, timeout=intv)
 ser.flush()
 ser.flushInput()
