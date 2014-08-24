@@ -1,13 +1,13 @@
 MacroBull's mcu tools
 ==================
 
-baudCalc.py
+baudCalc
 -----
 Baudrate calculator for msp430.
 
 usage:
 
-	$ baudCalc.py 12000000 460800
+	$ baudCalc 12000000 460800
 	
 	Clock=12000000.0Hz, Baudrate=460800
 	
@@ -18,7 +18,7 @@ usage:
 	#define UCBR0 0b00000000
 
 
-serialReader.py
+serialReader
 --------
 My simple serialport tool, with functions of:
 
@@ -68,11 +68,13 @@ UT61C_Reader is an example of these, it parses data from UT61x multimeter:
 	34 31 00 40 80 82 0d 0a 2d 30 32 39 39 20       41.@....-0299   -0.0299         $V (DC)$
 	34 31 00 40 80 83 0d 0a 2d 30 33 37 38 20       41.@....-0378   -0.0378         $V (DC)$
 
+![Screenshot](./UT61C_Reader_ss.png)
 
 
+serial2sock
+-----
+Convert serialport stream to a socket, a tool for [my msp430f5529 peripheral library demo](https://github.com/MacroBull/libmsp430-macrobull/tree/master/demo/serial2sock_mixture_demo)
 
+Makes mcu accesible with network even browser, as some routers can do.
 
-	
-UT61C_Reader.py : Derived from serialReader, for reading data via serial port from .
-
-rawData.py : Derived from serialReader, plot serail data by byte.
+![image](https://raw.githubusercontent.com/MacroBull/libmsp430-macrobull/master/demo/serial2sock_mixture_demo/screenshot.png)
